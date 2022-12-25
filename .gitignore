@@ -43,3 +43,6 @@ typechain-types
 # Hardhat files
 cache
 artifacts
+
+# user-defined
+next-env.d.ts

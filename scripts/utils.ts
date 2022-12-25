@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { Signer } from 'ethers';
 import { ethers } from 'hardhat';
 import { Keyboards } from '../typechain-types';
@@ -5,7 +6,7 @@ import { Keyboards } from '../typechain-types';
 const getOwner = () => ethers.getSigners()
   .then(([owner]) => owner);
 
-export const retrieveKeyboards = async (
+const retrieveKeyboards = async (
   keyboardsContract: Keyboards,
   message: string = 'We got the keyboards!',
   signer?: Signer,
@@ -15,3 +16,5 @@ export const retrieveKeyboards = async (
     .getKeyboards();
   console.log(message, keyboards);
 };
+
+export { retrieveKeyboards };
