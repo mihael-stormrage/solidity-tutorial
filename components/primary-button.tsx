@@ -2,7 +2,7 @@ import { HTMLAttributes, ReactNode } from 'react';
 
 interface SpreadingButtonProps
   extends HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
-  type: string;
+  type?: 'button' | 'link';
   children: ReactNode;
 }
 
@@ -32,6 +32,10 @@ const PrimaryButton = (props: SpreadingButtonProps) => {
   ].join(' ');
   if (type === 'link') return <a {...rest} className={className}>{children}</a>;
   return <button {...rest} className={className}>{children}</button>;
+};
+
+PrimaryButton.defaultProps = {
+  type: 'button',
 };
 
 export default PrimaryButton;
