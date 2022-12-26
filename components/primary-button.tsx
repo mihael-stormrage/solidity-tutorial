@@ -2,7 +2,7 @@ import { HTMLAttributes, ReactNode } from 'react';
 
 interface SpreadingButtonProps
   extends HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
-  type?: 'button' | 'link';
+  type?: 'submit' | 'link';
   children: ReactNode;
 }
 
