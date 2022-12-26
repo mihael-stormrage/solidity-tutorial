@@ -7,23 +7,23 @@ const kinds = {
   3: 'iso-105',
 };
 
-type KeyboardComponentProps = {
-  kind: keyof typeof kinds,
-  isPBT: boolean,
-  filter: string,
-};
+export interface KeyboardProps {
+  kind: keyof typeof kinds;
+  isPBT: boolean;
+  filter: string;
+}
 
-const Keyboard = ({ kind, isPBT, filter }: KeyboardComponentProps) => {
+const Keyboard = ({ kind, isPBT, filter }: KeyboardProps) => {
   const kindDir = kinds[kind];
 
   const fileName = isPBT ? 'PBT' : 'ABS';
 
-  const imagePath = `keyboards/${kindDir}/${fileName}.png`;
+  const imagePath = `/keyboards/${kindDir}/${fileName}.png`;
   const alt = `${kindDir} keyboard with ${isPBT ? 'PBT' : 'ABS'} keys ${filter ? `with ${filter}` : ''}`;
 
   return (
     <div className='rounded-lg p-2 border border-white'>
-      <Image className={`h-[230px] w-[360px] ${filter}`} src={imagePath} alt={alt} />
+      <Image className={`h-[230px] w-[360px] ${filter}`} width={230} height={360} src={imagePath} alt={alt} />
     </div>
   );
 };

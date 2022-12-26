@@ -1,11 +1,10 @@
 import { HTMLAttributes, ReactNode } from 'react';
 
-interface SpreadingButtonProps
-  extends HTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends HTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 }
 
-const SecondaryButton = (props: SpreadingButtonProps) => (
+const SecondaryButton = (props: ButtonProps) => (
   <button
     {...props}
     className={[
@@ -29,9 +28,7 @@ const SecondaryButton = (props: SpreadingButtonProps) => (
       'disabled:opacity-80,',
       'disabled:pointer-events-none',
     ].join(' ')}
-  >
-    {props.children}
-  </button>
+  />
 );
 
 export default SecondaryButton;

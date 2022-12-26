@@ -20,3 +20,7 @@ rules:
   react/button-has-type: 0
   react/destructuring-assignment: 0
   react-hooks/exhaustive-deps: 0
+  jsx-a11y/label-has-associated-control:
+    - error
+    - required:
+        some: [nesting, id]

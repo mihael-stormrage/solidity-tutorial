@@ -1,13 +1,14 @@
-import { HTMLAttributes, ReactNode } from 'react';
+import { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react';
 
-interface SpreadingButtonProps
-  extends HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
-  type?: 'submit' | 'link';
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
+type AnchorProps = AnchorHTMLAttributes<HTMLAnchorElement>;
+
+type PrimaryButtonProps<T extends 'link' | 'submit'> = {
+  type?: T;
   children: ReactNode;
-}
+} & (T extends 'link' ? AnchorProps : ButtonProps);
 
-const PrimaryButton = (props: SpreadingButtonProps) => {
-  const { type, children, ...rest } = props;
+const PrimaryButton = <T extends 'link' | 'submit'>({ type, children, ...rest }: PrimaryButtonProps<T>) => {
   const className = [
     'max-w-fit',
     'inline-flex',
@@ -30,12 +31,12 @@ const PrimaryButton = (props: SpreadingButtonProps) => {
     'disabled:opacity-80',
     'disabled:pointer-events-none',
   ].join(' ');
-  if (type === 'link') return <a {...rest} className={className}>{children}</a>;
-  return <button {...rest} className={className}>{children}</button>;
+  if (type === 'link') return <a {...rest as AnchorProps} className={className}>{children}</a>;
+  return <button {...rest as ButtonProps} className={className}>{children}</button>;
 };
 
 PrimaryButton.defaultProps = {
-  type: 'button',
+  type: 'submit',
 };
 
 export default PrimaryButton;
