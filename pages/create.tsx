@@ -6,7 +6,7 @@ import {
 } from 'react';
 import Keyboard, { KeyboardProps } from '../components/keyboard';
 import PrimaryButton from '../components/primary-button';
-import LoadingSvg from '../components/loadingSvg';
+import LoadingSvg from '../components/loading-svg';
 import getContract from '../utils';
 import { Keyboards } from '../typechain-types';
 
