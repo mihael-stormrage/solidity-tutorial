@@ -13,6 +13,13 @@ const main = async () => {
   await keyboardTxn2.wait();
   await retrieveKeyboards(keyboardsContract);
   await retrieveKeyboards(keyboardsContract, 'And as somebody else!', somebodyElse);
+
+  const balanceBefore = await ethers.provider.getBalance(somebodyElse.address);
+  console.log('somebodyElse balance before!', ethers.utils.formatEther(balanceBefore));
+  const tipTxn = await keyboardsContract.tip(1, { value: ethers.utils.parseEther('1000') });
+  await tipTxn.wait();
+  const balanceAfter = await ethers.provider.getBalance(somebodyElse.address);
+  console.log('somebodyElse balance after!', ethers.utils.formatEther(balanceAfter));
 };
 
 main()

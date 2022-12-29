@@ -2,7 +2,7 @@ import { ExternalProvider } from '@ethersproject/providers';
 import { ethers } from 'ethers';
 import abi from './Keyboards.json';
 
-const contractAddress = '0x039e26625FAd8c8c877B8E947e935B76BcFce123';
+const contractAddress = '0x5345D19d556D019fB2C6526681d6873434bAe1C0';
 const { abi: contractABI } = abi;
 
 const getContract = (ethereum: ExternalProvider) => {
