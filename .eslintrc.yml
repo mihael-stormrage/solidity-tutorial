@@ -1,5 +1,6 @@
 extends:
   - eslint:recommended
+  - plugin:@typescript-eslint/eslint-recommended
   - airbnb
   - airbnb-typescript
   - next/core-web-vitals
@@ -20,6 +21,10 @@ rules:
   react/button-has-type: 0
   react/destructuring-assignment: 0
   react-hooks/exhaustive-deps: 0
+  default-case: 0
+  '@typescript-eslint/switch-exhaustiveness-check': 2
+  consistent-return: 0
+  '@typescript-eslint/no-unsafe-return': 2
   jsx-a11y/label-has-associated-control:
     - error
     - required:

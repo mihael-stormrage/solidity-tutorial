@@ -1,7 +1,7 @@
 import { ExternalProvider } from '@ethersproject/providers';
 import { MetaMaskInpageProvider } from '@metamask/providers';
 import { nanoid } from 'nanoid';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import PrimaryButton from '../components/primary-button';
 import Keyboard, { KeyboardProps } from '../components/keyboard';
 import getContract from '../utils';
@@ -11,13 +11,16 @@ const Home = () => {
   const [ethereum, setEthereum] = useState<MetaMaskInpageProvider & ExternalProvider>();
   const [connectedAccount, setConnectedAccount] = useState<string>();
   const [keyboards, setKeyboards] = useState<Keyboards.KeyboardStructOutput[]>([]);
+  const [isKeyboardsLoading, setIsKeyboardsLoading] = useState(false);
 
   const getKeyboards = async () => {
     if (!ethereum || !connectedAccount) return;
+    setIsKeyboardsLoading(true);
     const keyboardsContract = getContract(ethereum);
     const keyboardsData = await keyboardsContract.getKeyboards();
     console.log('Retrieved keyboards...', keyboardsData);
     setKeyboards(keyboardsData);
+    setIsKeyboardsLoading(false);
   };
 
   const handleAccounts = (accounts: string[]) => {
@@ -49,26 +52,28 @@ const Home = () => {
     getKeyboards();
   }, [connectedAccount]);
 
-  if (!ethereum) return <p>Please install MetaMask to connect to this site</p>;
-  if (!connectedAccount) {
-    return <PrimaryButton onClick={connectAccount}>Connect MetaMask Wallet</PrimaryButton>;
-  }
-  if (keyboards.length) {
-    return (
-      <div className='flex flex-col gap-4'>
-        <PrimaryButton type='link' href='/create'>Create a Keyboard!</PrimaryButton>
+  const renderKeyboards = (): ReactNode => {
+    if (keyboards.length) {
+      return (
         <div className='grid grid-cols-1 md:grid-cols-2 gap-2 p-2'>
           {keyboards.map(([kind, isPBT, filter]) => (
             <Keyboard key={nanoid(4)} kind={kind as KeyboardProps['kind']} isPBT={isPBT} filter={filter} />
           ))}
         </div>
-      </div>
-    );
+      );
+    }
+    if (isKeyboardsLoading) return <p>Loading Keyboards...</p>;
+    return <p>No keyboards yet!</p>;
+  };
+
+  if (!ethereum) return <p>Please install MetaMask to connect to this site</p>;
+  if (!connectedAccount) {
+    return <PrimaryButton onClick={connectAccount}>Connect MetaMask Wallet</PrimaryButton>;
   }
   return (
     <div className='flex flex-col gap-4'>
       <PrimaryButton type='link' href='/create'>Create a Keyboard!</PrimaryButton>
-      <p>No keyboards yet!</p>
+      {renderKeyboards()}
     </div>
   );
 };

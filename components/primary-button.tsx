@@ -5,10 +5,13 @@ type AnchorProps = AnchorHTMLAttributes<HTMLAnchorElement>;
 
 type PrimaryButtonProps<T extends 'link' | 'submit'> = {
   type?: T;
+  color?: string;
   children: ReactNode;
 } & (T extends 'link' ? AnchorProps : ButtonProps);
 
-const PrimaryButton = <T extends 'link' | 'submit'>({ type, children, ...rest }: PrimaryButtonProps<T>) => {
+const PrimaryButton = <T extends 'link' | 'submit'>({
+  type, children, color, ...rest
+}: PrimaryButtonProps<T>) => {
   const className = [
     'max-w-fit',
     'inline-flex',
@@ -21,7 +24,7 @@ const PrimaryButton = <T extends 'link' | 'submit'>({ type, children, ...rest }:
     'font-medium',
     'rounded-md',
     'shadow-sm',
-    'text-white',
+    `text-${color}`,
     'bg-indigo-600',
     'hover:bg-indigo-700',
     'focus:outline-none',
@@ -37,6 +40,7 @@ const PrimaryButton = <T extends 'link' | 'submit'>({ type, children, ...rest }:
 
 PrimaryButton.defaultProps = {
   type: 'submit',
+  color: 'white',
 };
 
 export default PrimaryButton;

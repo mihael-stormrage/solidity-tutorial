@@ -1,9 +1,12 @@
 import { ExternalProvider } from '@ethersproject/providers';
 import { MetaMaskInpageProvider } from '@metamask/providers';
 import { useRouter } from 'next/router';
-import { MouseEventHandler, useEffect, useState } from 'react';
+import {
+  MouseEventHandler, ReactNode, useEffect, useState,
+} from 'react';
 import Keyboard, { KeyboardProps } from '../components/keyboard';
 import PrimaryButton from '../components/primary-button';
+import LoadingSvg from '../components/loadingSvg';
 import getContract from '../utils';
 import { Keyboards } from '../typechain-types';
 
@@ -23,6 +26,12 @@ const inputClassName = [
   'rounded-md',
 ].join(' ');
 
+enum TxnState {
+  DONE,
+  WAIT,
+  PENDING,
+}
+
 const Create = () => {
   const router = useRouter();
   const [ethereum, setEthereum] = useState<MetaMaskInpageProvider & ExternalProvider>();
@@ -30,6 +39,7 @@ const Create = () => {
   const [keyboardKind, setKeyboardKind] = useState<Keyboards.KeyboardStructOutput['kind']>(0);
   const [isPBT, setIsPBT] = useState(false);
   const [filter, setFilter] = useState('');
+  const [miningState, setMiningState] = useState<TxnState>(TxnState.DONE);
 
   const handleAccounts = (accounts: string[]) => {
     if (!accounts.length) return console.log('No authorized accounts yet');
@@ -59,12 +69,28 @@ const Create = () => {
   const submitCreate: MouseEventHandler = async (e) => {
     e.preventDefault();
     if (!ethereum) return console.error('Ethereum object is required to create a keyboard');
-    const keyboardsContract = getContract(ethereum);
-    const createTxn = await keyboardsContract.create(keyboardKind, isPBT, filter);
-    console.log('Create transaction started...', createTxn.hash);
-    await createTxn.wait();
-    console.log('Created keyboard!', createTxn.hash);
-    return router.push('/');
+    setMiningState(TxnState.WAIT);
+    try {
+      const keyboardsContract = getContract(ethereum);
+      const createTxn = await keyboardsContract.create(keyboardKind, isPBT, filter);
+      setMiningState(TxnState.PENDING);
+      console.log('Create transaction started...', createTxn.hash);
+      await createTxn.wait();
+      console.log('Created keyboard!', createTxn.hash);
+      return await router.push('/');
+    } finally {
+      setMiningState(TxnState.DONE);
+    }
+  };
+
+  const renderButtonContent = (): ReactNode => {
+    if (miningState === TxnState.DONE) return 'Create Keyboard!';
+    return (
+      <>
+        <LoadingSvg />
+        {miningState === TxnState.PENDING ? 'Pending...' : 'Creating...'}
+      </>
+    );
   };
 
   if (!ethereum) return <p>Please install MetaMask to connect to this site</p>;
@@ -128,8 +154,13 @@ const Create = () => {
           </select>
         </div>
 
-        <PrimaryButton type='submit' onClick={submitCreate}>
-          Create Keyboard!
+        <PrimaryButton
+          type='submit'
+          disabled={miningState !== TxnState.DONE}
+          color={miningState === TxnState.PENDING ? 'amber-400' : 'white'}
+          onClick={submitCreate}
+        >
+          {renderButtonContent()}
         </PrimaryButton>
       </form>
 
