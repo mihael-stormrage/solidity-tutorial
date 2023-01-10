@@ -1,8 +1,5 @@
-import { ExternalProvider } from '@ethersproject/providers';
-import { MetaMaskInpageProvider } from '@metamask/providers';
-import { ethers } from 'ethers';
+import { Contract, ethers } from 'ethers';
 import { useState } from 'react';
-import getContract from '../utils/getKeyboardsContract';
 import LoadingSvg from './loading-svg';
 import SecondaryButton from './secondary-button';
 
@@ -13,15 +10,14 @@ enum TxnState {
 }
 
 const TipButton = (
-  { ethereum, index }: { ethereum: MetaMaskInpageProvider & ExternalProvider, index: number },
+  { keyboardsContract, index }: { keyboardsContract: Contract, index: number },
 ) => {
   const [miningState, setMiningState] = useState<TxnState>(TxnState.DONE);
 
   const submitTip = async () => {
-    if (!ethereum) return console.error('Ethereum object is required to create a keyboard');
+    if (!keyboardsContract) return console.error('KeyboardsContract object is required to create a keyboard');
     setMiningState(TxnState.WAIT);
     try {
-      const keyboardsContract = getContract(ethereum);
       const tipTxn = await keyboardsContract!!.tip(index, { value: ethers.utils.parseEther('0.01') });
       setMiningState(TxnState.PENDING);
       console.log('Tip transaction started...', tipTxn.hash);

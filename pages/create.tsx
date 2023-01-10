@@ -1,14 +1,11 @@
-import { ExternalProvider } from '@ethersproject/providers';
-import { MetaMaskInpageProvider } from '@metamask/providers';
 import { useRouter } from 'next/router';
-import {
-  MouseEventHandler, ReactNode, useEffect, useState,
-} from 'react';
-import Keyboard, { KeyboardProps } from '../components/keyboard';
-import PrimaryButton from '../components/primary-button';
-import LoadingSvg from '../components/loading-svg';
-import getContract from '../utils/getKeyboardsContract';
-import { Keyboards } from '../typechain-types';
+import { MouseEventHandler, useState } from 'react';
+import { useMetaMaskAccount } from 'context/meta-mask-account-provider';
+import getKeyboardsContract from 'utils/getKeyboardsContract';
+import Keyboard, { KeyboardProps } from 'components/keyboard';
+import PrimaryButton from 'components/primary-button';
+import LoadingSvg from 'components/loading-svg';
+import { Keyboards } from 'typechain-types';
 
 const inputClassName = [
   'mt-1',
@@ -34,45 +31,21 @@ enum TxnState {
 
 const Create = () => {
   const router = useRouter();
-  const [ethereum, setEthereum] = useState<MetaMaskInpageProvider & ExternalProvider>();
-  const [connectedAccount, setConnectedAccount] = useState<string>();
+  const { ethereum, connectedAccount, connectAccount } = useMetaMaskAccount();
   const [keyboardKind, setKeyboardKind] = useState<Keyboards.KeyboardStructOutput['kind']>(0);
   const [isPBT, setIsPBT] = useState(false);
   const [filter, setFilter] = useState('');
   const [miningState, setMiningState] = useState<TxnState>(TxnState.DONE);
 
-  const handleAccounts = (accounts: string[]) => {
-    if (!accounts.length) return console.log('No authorized accounts yet');
-    const [account] = accounts;
-    console.log('We have an authorized account: ', account);
-    return setConnectedAccount(account);
-  };
-
-  const connectAccount = async () => {
-    if (!ethereum) return alert('MetaMask is required to connect an account');
-    const accounts = await ethereum.request({ method: 'eth_requestAccounts' }) as string[];
-    return handleAccounts(accounts);
-  };
-
-  const getConnectedAccount = async () => {
-    if (!window.ethereum) return;
-    setEthereum(window.ethereum);
-    if (!ethereum) return;
-    const accounts = await ethereum.request({ method: 'eth_accounts' }) as string[];
-    handleAccounts(accounts);
-  };
-
-  useEffect(() => {
-    getConnectedAccount();
-  });
+  const keyboardsContract = getKeyboardsContract(ethereum);
 
   const submitCreate: MouseEventHandler = async (e) => {
     e.preventDefault();
     if (!ethereum) return console.error('Ethereum object is required to create a keyboard');
+    if (!keyboardsContract) return console.error('KeyboardsContract object is required to create a keyboard');
     setMiningState(TxnState.WAIT);
     try {
-      const keyboardsContract = getContract(ethereum);
-      const createTxn = await keyboardsContract!!.create(keyboardKind, isPBT, filter);
+      const createTxn = await keyboardsContract.create(keyboardKind, isPBT, filter);
       setMiningState(TxnState.PENDING);
       console.log('Create transaction started...', createTxn.hash);
       await createTxn.wait();
@@ -83,8 +56,8 @@ const Create = () => {
     }
   };
 
-  const renderButtonContent = (): ReactNode => {
-    if (miningState === TxnState.DONE) return 'Create Keyboard!';
+  const ButtonContent = (): JSX.Element => {
+    if (miningState === TxnState.DONE) return <>Create Keyboard!</>;
     return (
       <>
         <LoadingSvg />
@@ -160,7 +133,7 @@ const Create = () => {
           color={miningState === TxnState.PENDING ? 'amber-400' : 'white'}
           onClick={submitCreate}
         >
-          {renderButtonContent()}
+          <ButtonContent />
         </PrimaryButton>
       </form>
 

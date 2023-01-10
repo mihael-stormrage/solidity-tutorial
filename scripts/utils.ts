@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import { Signer } from 'ethers';
 import { ethers } from 'hardhat';
-import { Keyboards } from '../typechain-types';
+import { Keyboards } from 'typechain-types';
 
 const getOwner = () => ethers.getSigners()
   .then(([owner]) => owner);
