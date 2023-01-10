@@ -7,7 +7,7 @@ import {
 import Keyboard, { KeyboardProps } from '../components/keyboard';
 import PrimaryButton from '../components/primary-button';
 import LoadingSvg from '../components/loading-svg';
-import getContract from '../utils';
+import getContract from '../utils/getKeyboardsContract';
 import { Keyboards } from '../typechain-types';
 
 const inputClassName = [
@@ -72,7 +72,7 @@ const Create = () => {
     setMiningState(TxnState.WAIT);
     try {
       const keyboardsContract = getContract(ethereum);
-      const createTxn = await keyboardsContract.create(keyboardKind, isPBT, filter);
+      const createTxn = await keyboardsContract!!.create(keyboardKind, isPBT, filter);
       setMiningState(TxnState.PENDING);
       console.log('Create transaction started...', createTxn.hash);
       await createTxn.wait();

@@ -1,14 +1,17 @@
 import { ExternalProvider } from '@ethersproject/providers';
 import { MetaMaskInpageProvider } from '@metamask/providers';
+import { ethers } from 'ethers';
 import { nanoid } from 'nanoid';
 import { ReactNode, useEffect, useState } from 'react';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
+import toast from 'react-hot-toast';
 import { Keyboards } from '../typechain-types';
+import useEffectAsync from '../hooks/useEffectAsync';
 import PrimaryButton from '../components/primary-button';
 import TipButton from '../components/tip-button';
 import Keyboard, { KeyboardProps } from '../components/keyboard';
-import getContract from '../utils';
-import isAddressesEqual from '../utils/addressesEqual';
+import getContract from '../utils/getKeyboardsContract';
+import isAddressesEqual from '../utils/isAddressesEqual';
 
 const Home = () => {
   const [ethereum, setEthereum] = useState<MetaMaskInpageProvider & ExternalProvider>();
@@ -16,11 +19,12 @@ const Home = () => {
   const [keyboards, setKeyboards] = useState<Keyboards.KeyboardStructOutput[]>([]);
   const [isKeyboardsLoading, setIsKeyboardsLoading] = useState(false);
 
+  const keyboardsContract = getContract(ethereum);
+
   const getKeyboards = async () => {
     if (!ethereum || !connectedAccount) return;
     setIsKeyboardsLoading(true);
-    const keyboardsContract = getContract(ethereum);
-    const keyboardsData = await keyboardsContract.getKeyboards();
+    const keyboardsData = await keyboardsContract!!.getKeyboards();
     console.log('Retrieved keyboards...', keyboardsData);
     setKeyboards(keyboardsData);
     setIsKeyboardsLoading(false);
@@ -47,13 +51,23 @@ const Home = () => {
     handleAccounts(accounts);
   };
 
-  useEffect(() => {
-    getConnectedAccount();
-  });
+  const addContractEventHandlers = () => {
+    if (!keyboardsContract || !connectedAccount) return;
+    keyboardsContract.on('KeyboardCreated', async (keyboard) => {
+      if (connectedAccount && !isAddressesEqual(keyboard.owner, connectedAccount)) {
+        toast('Somebody created a new keyboard!', { id: JSON.stringify(keyboard) });
+      }
+      await getKeyboards();
+    });
+    keyboardsContract.on('TipSent', (recipient, amount) => {
+      if (!isAddressesEqual(recipient, connectedAccount)) return;
+      toast(`You received a tip of ${ethers.utils.formatEther(amount)} eth!`, { id: recipient + amount });
+    });
+  };
 
-  useEffect(() => {
-    getKeyboards();
-  }, [connectedAccount]);
+  useEffectAsync(getConnectedAccount);
+  useEffectAsync(getKeyboards, [!!keyboardsContract, connectedAccount]);
+  useEffect(addContractEventHandlers, [!!keyboardsContract, connectedAccount]);
 
   const renderKeyboards = (): ReactNode => {
     if (keyboards.length) {
