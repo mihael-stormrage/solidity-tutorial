@@ -5,6 +5,8 @@ import {
 } from 'react';
 import useEffectAsync from 'hooks/use-effect-async';
 
+const goerliId = '0x5';
+
 const MetaMaskAccountContext = createContext({} as {
   ethereum?: MetaMaskInpageProvider & ExternalProvider,
   connectedAccount?: string,
@@ -16,7 +18,11 @@ const MetaMaskAccountProvider = ({ children }: { children: ReactNode }) => {
   const [connectedAccount, setConnectedAccount] = useState<string>();
 
   const setEthereumFromWindow = async () => {
-    if (window.ethereum) setEthereum(window.ethereum);
+    if (!window.ethereum) return;
+    window.ethereum.on('chainChanged', () => window.location.reload());
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    if (chainId === goerliId) return setEthereum(window.ethereum);
+    alert('Please use Goerli network');
   };
 
   const handleAccounts = (accounts: string[]) => {
