@@ -3,9 +3,11 @@ import { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react';
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 type AnchorProps = AnchorHTMLAttributes<HTMLAnchorElement>;
 
+type ColorPalette = 'text-white' | 'text-amber-400';
+
 type PrimaryButtonProps<T extends 'link' | 'submit'> = {
   type?: T;
-  color?: string;
+  color?: ColorPalette;
   children: ReactNode;
 } & (T extends 'link' ? AnchorProps : ButtonProps);
 
@@ -24,7 +26,6 @@ const PrimaryButton = <T extends 'link' | 'submit'>({
     'font-medium',
     'rounded-md',
     'shadow-sm',
-    `text-${color}`,
     'bg-indigo-600',
     'hover:bg-indigo-700',
     'focus:outline-none',
@@ -33,6 +34,7 @@ const PrimaryButton = <T extends 'link' | 'submit'>({
     'focus:ring-indigo-500',
     'disabled:opacity-80',
     'disabled:pointer-events-none',
+    color,
   ].join(' ');
   if (type === 'link') return <a {...rest as AnchorProps} className={className}>{children}</a>;
   return <button {...rest as ButtonProps} className={className}>{children}</button>;
@@ -40,7 +42,7 @@ const PrimaryButton = <T extends 'link' | 'submit'>({
 
 PrimaryButton.defaultProps = {
   type: 'submit',
-  color: 'white',
+  color: 'text-white',
 };
 
 export default PrimaryButton;

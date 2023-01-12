@@ -130,7 +130,7 @@ const Create = () => {
         <PrimaryButton
           type='submit'
           disabled={miningState !== TxnState.DONE}
-          color={miningState === TxnState.PENDING ? 'amber-400' : 'white'}
+          color={miningState === TxnState.PENDING ? 'text-amber-400' : 'text-white'}
           onClick={submitCreate}
         >
           <ButtonContent />
